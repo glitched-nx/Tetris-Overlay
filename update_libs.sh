@@ -1,65 +1,67 @@
 #!/bin/bash
 ################################################################################
-# File: update_libs.sh
-# Author: ppkantorski
-# Description: 
-#   This script automates the process of updating the "libultra" and "libtesla"
-#   libraries. It performs the following steps:
-#   - Navigates to the directory where the script is located.
-#   - Removes any existing "libultra" and "libtesla" directories in the "/lib" folder.
-#   - Initializes a temporary Git repository to selectively clone only the necessary
-#     directories from the Ultrahand-Overlay repository using sparse checkout.
-#   - Moves the downloaded directories to the correct locations in the project's "/lib" folder.
-#   - Cleans up temporary files and directories.
+# Datei: update_libs.sh
+# Autor: ppkantorski
+# Beschreibung: 
+#   Dieses Skript automatisiert den Prozess der Aktualisierung der "libultra" 
+#   und "libtesla" Bibliotheken. Es führt die folgenden Schritte aus:
+#   - Navigiert in das Verzeichnis, in dem sich das Skript befindet.
+#   - Entfernt vorhandene "libultra" und "libtesla" Verzeichnisse im "/lib" Ordner.
+#   - Initialisiert ein temporäres Git-Repository, um selektiv nur die notwendigen 
+#     Verzeichnisse aus dem Ultrahand-Overlay-Repository mittels Sparse Checkout zu klonen.
+#   - Verschiebt die heruntergeladenen Verzeichnisse an die richtigen Stellen im 
+#     "/lib" Ordner des Projekts.
+#   - Bereinigt temporäre Dateien und Verzeichnisse.
 #
-# Usage:
-#   1. Place this script in the root directory of the overlay project.
-#   2. Make sure the script has execute permissions:
+# Verwendung:
+#   1. Platzieren Sie dieses Skript im Stammverzeichnis des Overlay-Projekts.
+#   2. Stellen Sie sicher, dass das Skript Ausführungsrechte hat:
 #      chmod +x update_libs.sh
-#   3. Run the script:
+#   3. Führen Sie das Skript aus:
 #      ./update_libs.sh
 #
-# Notes:
-#   - Ensure you have an active internet connection, as this script pulls from a remote Git repository.
-#   - Requires Git to be installed and properly configured on your system.
+# Hinweise:
+#   - Stellen Sie sicher, dass Sie eine aktive Internetverbindung haben, da dieses 
+#     Skript aus einem entfernten Git-Repository zieht.
+#   - Erfordert, dass Git installiert und richtig konfiguriert ist.
 #
-# License:
-#   This script was created for overlay development by ppkantorski and is
-#   distributed under the GPLv2 license.
+# Lizenz:
+#   Dieses Skript wurde für die Overlay-Entwicklung von ppkantorski erstellt und wird 
+#   unter der GPLv2-Lizenz verteilt.
 ################################################################################
 
-# Navigate to the directory where this script is located
+# Navigiert in das Verzeichnis, in dem sich dieses Skript befindet
 cd "$(dirname "$0")"
 
-# Create the /lib directory if it doesn't exist
+# Erstellt das /lib Verzeichnis, falls es nicht existiert
 mkdir -p lib
 
-# Remove existing libultra and libtesla directories if they exist
+# Entfernt vorhandene libultra und libtesla Verzeichnisse, falls sie existieren
 rm -rf lib/libultra
 rm -rf lib/libtesla
 
-# Initialize a new git repository
+# Initialisiert ein neues Git-Repository
 git init temp-lib
 
-# Add the Ultrahand-Overlay repository as a remote
+# Fügt das Ultrahand-Overlay-Repository als Remote hinzu
 cd temp-lib
 git remote add -f origin https://github.com/ppkantorski/Ultrahand-Overlay.git
 
-# Enable sparse-checkout
+# Aktiviert Sparse-Checkout
 git config core.sparseCheckout true
 
-# Specify the directories to checkout
+# Gibt die Verzeichnisse an, die ausgecheckt werden sollen
 echo "lib/libultra/*" >> .git/info/sparse-checkout
 echo "lib/libtesla/*" >> .git/info/sparse-checkout
 
-# Checkout the specified directories
+# Checkt die angegebenen Verzeichnisse aus
 git pull origin main
 
-# Move the directories to the correct place
+# Verschiebt die Verzeichnisse an den richtigen Ort
 cd ..
 mkdir -p lib/libultra lib/libtesla
 mv temp-lib/lib/libultra/* lib/libultra/
 mv temp-lib/lib/libtesla/* lib/libtesla/
 
-# Clean up
+# Bereinigt temporäre Dateien und Verzeichnisse
 rm -rf temp-lib
